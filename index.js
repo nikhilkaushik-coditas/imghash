@@ -7,7 +7,6 @@ const PNG = require('png-js');
 const bmp = require('bmp-js');
 const blockhash = require('blockhash');
 const request = require('request');
-// const hamming = require('hamming-distance');
 
 function hash(filepath, bits, format) {
   format = format || 'hex';
