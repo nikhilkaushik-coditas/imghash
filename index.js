@@ -7,6 +7,7 @@ const PNG = require('png-js');
 const bmp = require('bmp-js');
 const blockhash = require('blockhash');
 const request = require('request');
+// const hamming = require('hamming-distance');
 
 function hash(filepath, bits, format) {
   format = format || 'hex';
@@ -122,9 +123,21 @@ function binaryToHex(s) {
   return ret;
 }
 
+function hamming(a, b) {
+  a = hexToBinary(a);
+  b = hexToBinary(b);
+  let distance = 0;
+    let ham = a ^ b;
+    while (ham > 0) {
+        distance ++;
+        ham &= ham - 1;
+    }
+  return distance;
+}
 module.exports = {
   hash,
   hashRaw,
   hexToBinary,
-  binaryToHex
+  binaryToHex,
+  hamming
 };
