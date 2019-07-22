@@ -4,12 +4,14 @@ const imageType = require('image-type');
 const fs = require('fs');
 const jpeg = require('jpeg-js');
 const PNG = require('png-js');
-const bmp = require("bmp-js");
+const bmp = require('bmp-js');
 const blockhash = require('blockhash');
+const request = require('request');
 
 function hash(filepath, bits, format) {
   format = format || 'hex';
-  if (format !== 'hex' && format !== 'binary') throw new Error('Unsupported format');
+  if (format !== 'hex' && format !== 'binary')
+    throw new Error('Unsupported format');
 
   bits = bits || 8;
   if (bits % 4 !== 0) throw new Error('Invalid bitlength');
@@ -19,42 +21,42 @@ function hash(filepath, bits, format) {
       return resolve(filepath);
     }
 
-    fs.readFile(filepath, (err, content) => {
+    request({ url: filepath, encoding: null }, (err, resp, content) => {
       if (err) return reject(err);
       resolve(content);
     });
   })
-  .then((fdata) => {
-    const ftype = imageType(fdata);
+    .then(fdata => {
+      const ftype = imageType(fdata);
 
-    if (ftype.mime === 'image/bmp') {
-      return bmp.decode(fdata);
-    }
+      if (ftype.mime === 'image/bmp') {
+        return bmp.decode(fdata);
+      }
 
-    if (ftype.mime === 'image/jpeg') {
-      return jpeg.decode(fdata);
-    }
+      if (ftype.mime === 'image/jpeg') {
+        return jpeg.decode(fdata);
+      }
 
-    if (ftype.mime === 'image/png') {
-      return new Promise((resolve, reject) => {
-        let png = new PNG(fdata);
-        png.decode((pixels) => {
-          resolve({
-            width: png.width,
-            height: png.height,
-            data: pixels
+      if (ftype.mime === 'image/png') {
+        return new Promise((resolve, reject) => {
+          let png = new PNG(fdata);
+          png.decode(pixels => {
+            resolve({
+              width: png.width,
+              height: png.height,
+              data: pixels
+            });
           });
         });
-      });
-    }
+      }
 
-    throw new Error('Unsupported image type');
-  })
-  .then((data) => hashRaw(data, bits))
-  .then((hexHash) => {
-    if (format === 'hex') return hexHash;
-    if (format === 'binary') return hexToBinary(hexHash);
-  });
+      throw new Error('Unsupported image type');
+    })
+    .then(data => hashRaw(data, bits))
+    .then(hexHash => {
+      if (format === 'hex') return hexHash;
+      if (format === 'binary') return hexToBinary(hexHash);
+    });
 }
 
 function hashRaw(data, bits) {
