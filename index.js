@@ -8,7 +8,7 @@ const bmp = require('bmp-js');
 const blockhash = require('blockhash');
 const request = require('request');
 
-function hash(filepath, bits, format) {
+function hash(fdata, bits, format) {
   format = format || 'hex';
   if (format !== 'hex' && format !== 'binary')
     throw new Error('Unsupported format');
@@ -17,16 +17,16 @@ function hash(filepath, bits, format) {
   if (bits % 4 !== 0) throw new Error('Invalid bitlength');
 
   return new Promise((resolve, reject) => {
-    if (Buffer.isBuffer(filepath)) {
-      return resolve(filepath);
-    }
-
-    request({ url: filepath, encoding: null }, (err, resp, content) => {
-      if (err) return reject(err);
-      resolve(content);
-    });
+    // if (Buffer.isBuffer(filepath)) {
+    //   return resolve(filepath);
+    // }
+    resolve();
+    // request({ url: filepath, encoding: null }, (err, resp, content) => {
+    //   if (err) return reject(err);
+    //   resolve(content);
+    // });
   })
-    .then(fdata => {
+    .then(() => {
       const ftype = imageType(fdata);
 
       if (ftype.mime === 'image/bmp') {
